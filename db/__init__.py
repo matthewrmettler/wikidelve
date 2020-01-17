@@ -1,63 +1,51 @@
 import sqlite3
-import os
 
 DATABASE_NAME = "test.db"
 
-def create_database():
-    with open(DATABASE_NAME, 'w') as f:
-        pass
+# https://stackoverflow.com/a/9538363
+def dict_from_sqlite3_row(row):
+    return dict(zip(row.keys(), row))
 
-    creation_query = """
-    CREATE TABLE entity (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        wiki_id INTEGER NOT NULL,
-        name text NOT NULL
-    );
 
-    CREATE UNIQUE INDEX idx_entity_wiki_id
-    ON entity (wiki_id);
+def load_query(query_name):
+    try:
+        with open("db/queries/{}.sql".format(query_name), 'r') as f:
+            sql_file = f.read()
+            commands = sql_file.split(';')
+            return commands
+    except Exception as e:
+        print("Could not load query %s! Error: %s" % (query_name, e))
+        return ""
 
-    CREATE TABLE entity_associations (
-        entity_id INTEGER PRIMARY KEY,
-        associated_ids text NOT NULL
-    );
-    
-    CREATE TABLE lists (
-        list_id INTEGER PRIMARY KEY,
-        list_name text NOT NULL
-    );
-    
-    CREATE TABLE list_associations (
-        list_id INTEGER PRIMARY KEY,
-        entity_id text NOT NULL
-    );
-    
-    
-    """
 
+def execute_query(query_name):
+    print("execute_query(%s)" % query_name)
+    query_array = load_query(query_name)
+    #print(query_array)
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
-    c.execute(creation_query)
+    for q in query_array:
+        c.execute(q)
     conn.commit()
     conn.close()
 
 
-def seed_database():
-    pass
+def query_data(query_name):
+    print("query_data(%s)" % query_name)
+    query_array = load_query(query_name)
 
+    query = query_array[0]
 
-def test_database():
     conn = sqlite3.connect(DATABASE_NAME)
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
+    c.execute(query)
+    result = c.fetchall()
+    conn.commit()
+    conn.close()
 
-    # Do this instead
-    t = ('RHAT',)
-    c.execute('SELECT * FROM stocks WHERE symbol=?', t)
-    print(c.fetchone())
+    dict_results = list()
+    for r in result:
+        dict_results.append(dict_from_sqlite3_row(r))
+    return dict_results
 
-    # Larger example that inserts many records at a time
-    purchases = [('2006-03-28', 'BUY', 'IBM', 1000, 45.00),
-                 ('2006-04-05', 'BUY', 'MSFT', 1000, 72.00),
-                 ('2006-04-06', 'SELL', 'IBM', 500, 53.00),
-                 ]
-    c.executemany('INSERT INTO stocks VALUES (?,?,?,?,?)', purchases)

@@ -9,15 +9,14 @@ import requests
 WIKIPEDIA_API_URL = 'https://en.wikipedia.org/w/api.php'
 
 
-def fetch_wikipedia_pages_info(page_ids):
+def fetch_wikipedia_pages_info(page_ids) -> dict:
   """Fetched page information such as title, URL, and image thumbnail URL for the provided page IDs.
   Args:
-    page_title: The page title to validate.
+    page_ids: The page ids to process.
   Returns:
-    None
-  Raises:
-    ValueError: If the provided page title is invalid.
+    Dict
   """
+  print("fetch_wikipedia_pages_info(%s)" % page_ids)
   pages_info = {}
 
   current_page_ids_index = 0
