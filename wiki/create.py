@@ -83,5 +83,14 @@ def fetch_wikipedia_pages_info(page_ids) -> dict:
         if description:
           pages_info[page_id]['description'] = description[0][0].upper() + description[0][1:]
 
+        categories = page.get('categories', [])
+        if categories:
+            cat_list = list()
+            for c in categories:
+                cat_list.append(c.get('title', '').replace("Category:", ""))
+            pages_info[page_id]['categories'] = cat_list
+
+        pages_info[page_id]['associations'] = page.get('linkshere', [])
+              
   return pages_info
 
