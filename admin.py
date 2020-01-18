@@ -1,11 +1,13 @@
 from db.create import create_database, seed_database
-from db.populate import find_new_entities
+from db.populate import find_new_entities, process_new_entities
 
-RESET_DATABASE = True
+RESET_DATABASE = False
 
-
+NUM_RUNS = 10
 def update_database():
-    find_new_entities()
+    for i in range(NUM_RUNS):
+        new_entities = find_new_entities()
+        process_new_entities(new_entities)
 
 
 def main():

@@ -49,3 +49,27 @@ def query_data(query_name):
         dict_results.append(dict_from_sqlite3_row(r))
     return dict_results
 
+
+def bulk_insert(query_name, data_list):
+    #print("bulk_insert(%s)" % query_name)
+    query_array = load_query(query_name)
+    base_query = query_array[0]
+    conn = sqlite3.connect(DATABASE_NAME)
+    c = conn.cursor()
+    for d in data_list:
+        query = base_query.format(**d)
+        c.execute(query)
+    conn.commit()
+    conn.close()
+
+
+def run_insert(query_name, params):
+    #print("run_insert(%s)" % query_name)
+    query_array = load_query(query_name)
+    query = query_array[0].format(**params)
+    #print(query)
+    conn = sqlite3.connect(DATABASE_NAME)
+    c = conn.cursor()
+    c.execute(query)
+    conn.commit()
+    conn.close()
